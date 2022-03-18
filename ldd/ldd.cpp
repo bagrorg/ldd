@@ -76,6 +76,7 @@ fs::path LDD::find_lib(const std::string &name) {
 }
 
 void LDD::operate_binary(const fs::path &binary) {
+    std::cout << "DEB___________________ " << binary.string() << std::endl;
     std::vector<std::string> binary_deps = get_dynamic_libs(binary);
 
     for (const std::string& dep: binary_deps) {
