@@ -19,9 +19,9 @@ void LDD::execute() {
 void LDD::report(std::ostream &out) {
     for (const auto& lib: libs) {
         if (lib.second.empty()) {
-            out << lib.first << " => " << "not found" << std::endl;
+            out << "\t" << lib.first << " => " << "not found" << std::endl;
         } else {
-            out << lib.first << " => " << lib.second << std::endl;
+            out << "\t" << lib.first << " => " << lib.second.string() << std::endl;
         }
     }
 }
