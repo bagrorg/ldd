@@ -5,7 +5,7 @@ import unittest
 class LDDTest(unittest.TestCase):
     @classmethod
     def setUpClass(self):
-        self.ldd_path = '${{github.workspace}}/build/ldd'
+        self.ldd_path = '../build/ldd'
 
     def test1(self):
         self.process_fold('test_case1', 1)
