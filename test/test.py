@@ -22,7 +22,7 @@ class LDDTest(unittest.TestCase):
 
         os.system(
             f'LD_LIBRARY_PATH={fold}/build:$LD_LIBRARY_PATH ldd {fold}/build/main > ldd_result{id}.txt && '
-            f'LD_LIBRARY_PATH={fold}/build:$LD_LIBRARY_PATH  /{self.ldd_path} {fold}/build/main > my_result{id}.txt')
+            f'LD_LIBRARY_PATH={fold}/build:$LD_LIBRARY_PATH {self.ldd_path} {fold}/build/main > my_result{id}.txt')
         os.system(f'rm -rf {fold}/build')
 
         ans = open(f'ldd_result{id}.txt', 'r')
