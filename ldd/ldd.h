@@ -5,6 +5,8 @@
 #include <iostream>
 #include <fstream>
 #include <ostream>
+#include <iterator>
+#include <vector>
 
 namespace fs = std::filesystem;
 
@@ -16,6 +18,8 @@ public:
     void report(std::ostream &out);
 
 private:
+    void parse_ld_conf(const fs::path &p);
+
     fs::path find_lib_in_path(const std::string &name, const fs::path &p);
 
     fs::path find_lib_in_ld_library_path(const std::string &name);
@@ -27,7 +31,7 @@ private:
     std::string get_ld_library_path();
 
     std::unordered_map<std::string, fs::path> libs;
-    std::array<std::string, 2> standart_paths = {"/lib", "/usr/lib"};
+    std::vector<std::string> standart_paths = {"/lib", "/usr/lib"};
 
     fs::path binary_path;
 };

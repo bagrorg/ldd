@@ -16,3 +16,4 @@
 namespace fs = std::filesystem;
 
 std::vector<std::string> get_dynamic_libs(const fs::path &filename);
+bool is_supportable(const fs::path &p);

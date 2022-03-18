@@ -15,7 +15,17 @@ int verificate_header(const Header &header) {
     std::array<const unsigned char, 4> expected_magic = {ELFMAG0, ELFMAG1, ELFMAG2, ELFMAG3};
 
     if (std::memcmp(header.e_ident, expected_magic.data(), sizeof(expected_magic)) != 0) {
-        std::cerr << "Target is not an ELF executable\n";
+        //std::cerr << "Target is not an ELF executable\n";
+        return 1;
+    }
+
+    if (header.e_ident[EI_CLASS] != ELFCLASS64) {
+        //std::cerr << "Sorry, only ELF-64 is supported.\n";
+        return 1;
+    }
+
+    if (header.e_machine != EM_X86_64) {
+        //std::cerr << "Sorry, only x86-64 is supported.\n";
         return 1;
     }
 
@@ -32,14 +42,12 @@ size_t get_elf_class(const std::vector<char> &elf) {
 Elf32_Ehdr get_header_32(const std::vector<char> &elf) {
     Elf32_Ehdr elf_hdr;
     memcpy(&elf_hdr, elf.data(), sizeof(elf_hdr));
-    verificate_header(elf_hdr);
     return elf_hdr;
 }
 
 Elf64_Ehdr get_header_64(const std::vector<char> &elf) {
     Elf64_Ehdr elf_hdr;
     memcpy(&elf_hdr, elf.data(), sizeof(elf_hdr));
-    verificate_header(elf_hdr);
     return elf_hdr;
 }
 
@@ -124,3 +132,36 @@ std::vector<std::string> get_dynamic_libs(const fs::path &filename) {
 
 
 
+bool is_supportable(const fs::path &p) {
+    std::vector<std::string> dynamic_libs;
+    std::vector<char> file_data = read_elf(p);
+    if (file_data.empty()) {                                                    // TODO: better operate
+        return {};
+    }
+
+    size_t elf_class = get_elf_class(file_data);
+
+    switch (elf_class) {
+        case ELFCLASS32: {
+            Elf32_Ehdr hdr32 = get_header_32(file_data);
+            if (verificate_header(hdr32)) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        case ELFCLASS64: {
+            Elf64_Ehdr hdr64 = get_header_64(file_data);
+            if (verificate_header(hdr64)) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+        default:
+            break;
+    }
+
+    return {};
+}

@@ -4,7 +4,13 @@
 #include "ldd.h"
 #include "../elf/elf.h"                                 //TODO
 
-LDD::LDD(const fs::path &binary_path) : binary_path(binary_path) {}
+LDD::LDD(const fs::path &binary_path) : binary_path(binary_path) {
+    fs::path ld_conf("/etc/ld.so.conf.d");
+
+    for (const auto & entry: fs::directory_iterator(ld_conf)){
+        parse_ld_conf(entry.path());
+    }
+}
 
 void LDD::execute() {
     operate_binary(binary_path);
@@ -22,11 +28,13 @@ void LDD::report(std::ostream &out) {
 
 fs::path LDD::find_lib_in_path(const std::string &name, const fs::path &p) {
     if (p == "") return {};                                                     //TODO: better
+    if (!exists(p)) return {};
 
-    for (const fs::directory_entry& dir: fs::recursive_directory_iterator(p)){
-        fs::path pt(dir.path());
-        if (pt.filename() == name) {
-            return pt;
+    for (const auto & entry: fs::directory_iterator(p)){
+        if (entry.is_directory()) continue;
+        if (entry.path().filename() == name) {
+            if (!is_supportable(entry.path())) continue;
+            return entry.path();
         }
     }
 
@@ -47,6 +55,7 @@ fs::path LDD::find_lib_in_ld_library_path(const std::string &name) {
             return p;
         }
     }
+
     return {};
 }
 
@@ -87,5 +96,22 @@ std::string LDD::get_ld_library_path() {
         return "";
     } else {
         return {s};
+    }
+}
+
+void LDD::parse_ld_conf(const fs::path &p) {
+    std::ifstream in(p.string());
+    std::vector<std::string> file_libs;
+
+    while (!in.eof()) {
+        std::string tmp;
+        std::getline(in, tmp);
+        file_libs.push_back(tmp);
+    }
+
+    for (const auto &lib: file_libs) {
+        if (lib.front() == '#') continue;
+        if (lib.empty()) continue;
+        standart_paths.push_back(lib);
     }
 }
