@@ -90,6 +90,7 @@ std::vector<std::string> read_dynamic_section(const Header &header, Section &sec
             return dynamic_libs;
         }
     }
+    return dynamic_libs;
 }
 
 std::vector<std::string> get_dynamic_libs_32(const std::vector<char> &file_data) {
