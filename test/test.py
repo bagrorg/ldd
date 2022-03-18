@@ -36,7 +36,7 @@ class LDDTest(unittest.TestCase):
                 continue
             if 'linux-vdso' in l:
                 continue
-            ans_set.append(l)
+            ans_set.append(l[:-21])
         ans_set.sort()
 
         res_set = []
