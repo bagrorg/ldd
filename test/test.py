@@ -1,13 +1,11 @@
 import os
 import unittest
-import re
 
 
 class LDDTest(unittest.TestCase):
     @classmethod
     def setUpClass(self):
-        self.ldd_path = '/home/bagrorg/Documents/GitHub/ldd/cmake-build-debug/ldd'
-
+        self.ldd_path = '${{github.workspace}}/build'
 
     def test1(self):
         self.process_fold('test_case1')
@@ -22,12 +20,13 @@ class LDDTest(unittest.TestCase):
                   f"cmake .. && "
                   f"make")
 
-        os.system(f'ldd {fold}/build/main > ldd_result.txt && LD_LIBRARY_PATH={fold}/build:$LD_LIBRARY_PATH  /{self.ldd_path} {fold}/build/main > my_result.txt')
+        os.system(
+            f'LD_LIBRARY_PATH={fold}/build:$LD_LIBRARY_PATH ldd {fold}/build/main > ldd_result.txt && '
+            f'LD_LIBRARY_PATH={fold}/build:$LD_LIBRARY_PATH  /{self.ldd_path} {fold}/build/main > my_result.txt')
         os.system(f'rm -rf {fold}/build')
 
         ans = open(f'ldd_result.txt', 'r')
         res = open(f'my_result.txt', 'r')
-
 
         ans_set = []
         for l in ans.readlines():
@@ -52,8 +51,3 @@ class LDDTest(unittest.TestCase):
         os.system(f'rm -rf my_result.txt')
 
         self.assertEqual(ans_set, res_set)
-
-
-
-
-
