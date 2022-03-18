@@ -36,14 +36,14 @@ class LDDTest(unittest.TestCase):
                 continue
             if 'linux-vdso' in l:
                 continue
-            ans_set.append(l[:-22])
+            ans_set.append(l)
         ans_set.sort()
 
         res_set = []
         for l in res.split('\n'):
             if 'ld-linux-x86-64' in l:
                 continue
-            res_set.append(l[:-1])
+            res_set.append(l)
         res_set.sort()
 
 
