@@ -2,25 +2,22 @@
 #include "elf.h"
 #include <iomanip>
 
-int verificate_header(const Elf64_Ehdr &header) {
+bool verificate_header(const Elf64_Ehdr &header) {
     std::array<const unsigned char, 4> expected_magic = {ELFMAG0, ELFMAG1, ELFMAG2, ELFMAG3};
 
     if (std::memcmp(header.e_ident, expected_magic.data(), sizeof(expected_magic)) != 0) {
-        //std::cerr << "Target is not an ELF executable\n";
-        return 1;
+        return false;
     }
 
     if (header.e_ident[EI_CLASS] != ELFCLASS64) {
-        //std::cerr << "Sorry, only ELF-64 is supported.\n";
-        return 1;
+        return false;
     }
 
     if (header.e_machine != EM_X86_64) {
-        //std::cerr << "Sorry, only x86-64 is supported.\n";
-        return 1;
+        return false;
     }
 
-    return 0;
+    return true;
 }
 
 
@@ -117,5 +114,5 @@ bool is_supportable(const fs::path &p) {
     }
 
     Elf64_Ehdr hdr = get_header(file);
-    return !verificate_header(hdr);
+    return verificate_header(hdr);
 }
