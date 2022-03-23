@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/bagrorg/Documents/GitHub/ldd/test/test_case2/lib/lib.h
+
+/home/bagrorg/Documents/GitHub/ldd/test/test_case2/main.cpp
+lib/lib.h
+/home/bagrorg/Documents/GitHub/ldd/test/test_case2/lib/lib.h
+
