@@ -1,3 +1,0 @@
-/home/bagrorg/Documents/GitHub/ldd/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/bagrorg/Documents/GitHub/ldd/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/bagrorg/Documents/GitHub/ldd/cmake-build-debug/CMakeFiles/ldd.dir
