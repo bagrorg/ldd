@@ -60,18 +60,37 @@ std::vector<std::string> get_needed_names(std::ifstream &file, size_t dynsect_si
     return deps;
 }
 
-std::vector<std::string> read_dynamic_section(const Elf64_Ehdr &header, size_t LOAD, std::ifstream &file) {
+std::vector<std::string> get_rpath_libs(std::ifstream &file, size_t dynsect_size, size_t dynsect_offset, size_t strtab_offset) {
+    std::vector<std::string> paths;
+    for (size_t j = 0; j * sizeof(Elf64_Dyn) < dynsect_size; j++) {
+        Elf64_Dyn dyn;
+        size_t offset = dynsect_offset + j * sizeof(Elf64_Dyn);
+        file.seekg(offset);
+        file.read(reinterpret_cast<char *>(&dyn), sizeof(Elf64_Dyn));
+        if (dyn.d_tag == DT_RUNPATH || dyn.d_tag == DT_RPATH) {
+            std::string lib;
+            file.seekg(strtab_offset + dyn.d_un.d_val);
+            std::getline(file, lib, '\0');
+            paths.push_back(lib);
+        }
+    }
+    return paths;
+}
+
+std::pair<std::vector<std::string>, std::vector<std::string>> read_dynamic_section(const Elf64_Ehdr &header, size_t LOAD, std::ifstream &file) {
     Elf64_Shdr section_header;
     file.seekg(header.e_shoff);
     std::vector<std::string> dynamic_libs;
+    std::vector<std::string> rpath;
     for (int i = 0; i < header.e_shnum; ++i) {
         file.read(reinterpret_cast<char *>(&section_header), sizeof(section_header));
         if (section_header.sh_type == SHT_DYNAMIC) {
             size_t strtab_offset = get_strtab_offset(file, section_header.sh_size, section_header.sh_offset);
             dynamic_libs = get_needed_names(file, section_header.sh_size, section_header.sh_offset, strtab_offset, LOAD);
+            rpath = get_rpath_libs(file, section_header.sh_size, section_header.sh_offset, strtab_offset);
         }
     }
-    return dynamic_libs;
+    return {dynamic_libs, rpath};
 }
 
 size_t read_LOAD(const Elf64_Ehdr &header, std::ifstream &file) {
@@ -88,7 +107,7 @@ size_t read_LOAD(const Elf64_Ehdr &header, std::ifstream &file) {
 }
 
 
-std::vector<std::string> get_dynamic_libs(const fs::path &p) {
+std::pair<std::vector<std::string>, std::vector<std::string>> get_dynamic_libs(const fs::path &p) {
     std::vector<std::string> dynamic_libs;
     std::ifstream file(p, std::ios::binary | std::ios::in);
     if (!file.is_open()) {

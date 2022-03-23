@@ -59,7 +59,14 @@ fs::path LDD::find_lib_in_ld_library_path(const std::string &name) {
     return {};
 }
 
-fs::path LDD::find_lib(const std::string &name) {
+fs::path LDD::find_lib(const std::string &name, const std::vector<std::string> &rpath) {
+    for (auto r: rpath) {
+        auto p = find_lib_in_path(name, fs::path(r));
+        if (!p.empty()) {
+            return p;
+        }
+    }
+
     auto p = find_lib_in_ld_library_path(name);
     if (!p.empty()) {
         return p;
@@ -76,12 +83,12 @@ fs::path LDD::find_lib(const std::string &name) {
 }
 
 void LDD::operate_binary(const fs::path &binary) {
-    std::vector<std::string> binary_deps = get_dynamic_libs(binary);
+    auto [binary_deps, rpath] = get_dynamic_libs(binary);
 
     for (const std::string& dep: binary_deps) {
         if (libs.find(dep) != libs.end()) continue;
 
-        fs::path path = find_lib(dep);
+        fs::path path = find_lib(dep, rpath);
         libs[dep] = path;
 
         if (!path.empty()) {

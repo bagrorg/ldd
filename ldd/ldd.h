@@ -24,7 +24,7 @@ private:
 
     fs::path find_lib_in_ld_library_path(const std::string &name);
 
-    fs::path find_lib(const std::string &name);
+    fs::path find_lib(const std::string &name, const std::vector<std::string> &rpath);
 
     void operate_binary(const fs::path &binary);
 

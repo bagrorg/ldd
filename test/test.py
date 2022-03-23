@@ -58,8 +58,10 @@ class LDDTest(unittest.TestCase):
             res_set.append(l)
         res_set.sort()
 
-
-        self.assertEqual(ans_set, res_set)
+        for ans, res in zip(ans_set, res_set):
+            path_ans, path_res = ans.split('=>'), res.split('=>')
+            so_ans, so_res = path_ans[-1].split('/')[-1], path_res[-1].split('/')[-1]
+            self.assertEqual(so_ans, so_res)
 
     def process_bin(self, bin):
         stream = os.popen(f'ldd {bin}')
@@ -84,5 +86,7 @@ class LDDTest(unittest.TestCase):
             res_set.append(l)
         res_set.sort()
 
-
-        self.assertEqual(ans_set, res_set)
+        for ans, res in zip(ans_set, res_set):
+            path_ans, path_res = ans.split('=>'), res.split('=>')
+            so_ans, so_res = path_ans[-1].split('/')[-1], path_res[-1].split('/')[-1]
+            self.assertEqual(so_ans, so_res)
