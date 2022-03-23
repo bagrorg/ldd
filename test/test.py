@@ -8,13 +8,14 @@ class LDDTest(unittest.TestCase):
         self.ldd_path = '../build/ldd'
 
     def test1(self):
-        self.process_fold('test_case1', 1)
+        self.process_fold('test_case1', True)
 
     def test2(self):
-        self.process_fold('test_case2', 2)
+        self.process_fold('test_case2', True)
 
-    def process_fold(self, fold, id):
-        os.system(f"cd {fold} &&"
+    def process_fold(self, fold, to_build):
+        if to_build:
+            os.system(f"cd {fold} &&"
                   f"mkdir build && "
                   f"cd build && "
                   f"cmake .. && "
@@ -27,7 +28,8 @@ class LDDTest(unittest.TestCase):
         stream = os.popen(f'LD_LIBRARY_PATH={fold}/build:$LD_LIBRARY_PATH {self.ldd_path} {fold}/build/main')
         res=stream.read()
 
-        os.system(f'rm -rf {fold}/build')
+        if to_build:
+            os.system(f'rm -rf {fold}/build')
 
 
         ans_set = []
