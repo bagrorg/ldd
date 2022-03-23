@@ -13,6 +13,10 @@ class LDDTest(unittest.TestCase):
     def test2(self):
         self.process_fold('test_case2', True)
 
+    def test3(self):
+        self.process_bin('/usr/bin/gdb')
+
+
     def process_fold(self, fold, to_build):
         if to_build:
             os.system(f"cd {fold} &&"
@@ -31,6 +35,32 @@ class LDDTest(unittest.TestCase):
         if to_build:
             os.system(f'rm -rf {fold}/build')
 
+
+        ans_set = []
+        for l in ans.split('\n'):
+            if 'ld-linux-x86-64' in l:
+                continue
+            if 'linux-vdso' in l:
+                continue
+            ans_set.append(l[:-21])
+        ans_set.sort()
+
+        res_set = []
+        for l in res.split('\n'):
+            if 'ld-linux-x86-64' in l:
+                continue
+            res_set.append(l)
+        res_set.sort()
+
+
+        self.assertEqual(ans_set, res_set)
+
+    def process_bin(self, bin):
+        stream = os.popen(f'ldd {bin}')
+
+        ans = stream.read()
+        stream = os.popen(f'{self.ldd_path} {bin}')
+        res = stream.read()
 
         ans_set = []
         for l in ans.split('\n'):
