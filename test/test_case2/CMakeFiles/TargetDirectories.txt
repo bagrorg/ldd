@@ -1,4 +1,0 @@
-/home/bagrorg/Documents/GitHub/ldd/test/test_case2/CMakeFiles/rebuild_cache.dir
-/home/bagrorg/Documents/GitHub/ldd/test/test_case2/CMakeFiles/edit_cache.dir
-/home/bagrorg/Documents/GitHub/ldd/test/test_case2/CMakeFiles/main.dir
-/home/bagrorg/Documents/GitHub/ldd/test/test_case2/CMakeFiles/lib.dir

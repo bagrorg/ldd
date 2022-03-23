@@ -1,1 +1,0 @@
-/usr/bin/c++     CMakeFiles/main.dir/main.cpp.o  -o main  -Wl,-rpath,/home/bagrorg/Documents/GitHub/ldd/test/test_case2 liblib.so 
