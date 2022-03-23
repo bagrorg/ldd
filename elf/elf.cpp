@@ -1,5 +1,6 @@
 #include <iostream>
 #include "elf.h"
+#include <iomanip>
 
 std::vector<char> read_elf(const fs::path &filename) {
     std::ifstream file(filename, std::ios::binary | std::ios::in);
@@ -53,20 +54,22 @@ Elf64_Ehdr get_header_64(const std::vector<char> &elf) {
 
 
 size_t get_strtab_offset(const std::vector<char> &elf_data, size_t dynsect_size, size_t dynsect_offset) {
-    for (size_t j = 0; j * sizeof(Elf64_Sym) < dynsect_size; j++) {
+    size_t off;
+    for (size_t j = 0; j * sizeof(Elf64_Dyn) < dynsect_size; j++) {
         Elf64_Dyn dyn;
         size_t offset = dynsect_offset + j * sizeof(Elf64_Dyn);
         memcpy(&dyn, elf_data.data() + offset, sizeof(dyn));
         if (dyn.d_tag == DT_STRTAB) {
-            return dyn.d_un.d_val;                      // d_ptr???
+            off = dyn.d_un.d_val;
         }
     }
-    return 0;
+
+    return off;
 }
 
 std::vector<std::string> get_needed_names(const std::vector<char> &elf_data, size_t dynsect_size, size_t dynsect_offset, size_t strtab_offset) {
     std::vector<std::string> deps;
-    for (size_t j = 0; j * sizeof(Elf64_Sym) < dynsect_size; j++) {
+    for (size_t j = 0; j * sizeof(Elf64_Dyn) < dynsect_size; j++) {
         Elf64_Dyn dyn;
         size_t offset = dynsect_offset + j * sizeof(Elf64_Dyn);
         memcpy(&dyn, elf_data.data() + offset, sizeof(dyn));
@@ -87,25 +90,11 @@ std::vector<std::string> read_dynamic_section(const Header &header, Section &sec
         if (section_header.sh_type == SHT_DYNAMIC) {
             size_t strtab_offset = get_strtab_offset(file_data, section_header.sh_size, section_header.sh_offset);
             dynamic_libs = get_needed_names(file_data, section_header.sh_size, section_header.sh_offset, strtab_offset);
-            return dynamic_libs;
         }
     }
     return dynamic_libs;
 }
 
-std::vector<std::string> get_dynamic_libs_32(const std::vector<char> &file_data) {
-    Elf32_Ehdr header = get_header_32(file_data);
-    Elf32_Shdr section_header;
-
-    return read_dynamic_section(header, section_header, file_data);
-}
-
-std::vector<std::string> get_dynamic_libs_64(const std::vector<char> &file_data) {
-    Elf64_Ehdr header = get_header_64(file_data);
-    Elf64_Shdr section_header;
-
-    return read_dynamic_section(header, section_header, file_data);
-}
 
 
 std::vector<std::string> get_dynamic_libs(const fs::path &filename) {
@@ -115,20 +104,10 @@ std::vector<std::string> get_dynamic_libs(const fs::path &filename) {
         return {};
     }
 
-    size_t elf_class = get_elf_class(file_data);
+    Elf64_Ehdr header = get_header_64(file_data);
+    Elf64_Shdr section_header;
 
-    switch (elf_class) {
-        case ELFCLASS32:
-            return get_dynamic_libs_32(file_data);
-            break;
-        case ELFCLASS64:
-            return get_dynamic_libs_64(file_data);
-            break;
-        default:
-            break;
-    }
-
-    return {};
+    return read_dynamic_section(header, section_header, file_data);
 }
 
 
