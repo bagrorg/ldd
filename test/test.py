@@ -16,6 +16,12 @@ class LDDTest(unittest.TestCase):
     def test3(self):
         self.process_bin('/usr/bin/gdb')
 
+    def test4(self):
+        self.process_bin('/usr/bin/clang')
+
+    def test5(self):
+        self.process_bin('/usr/bin/g++')
+
 
     def process_fold(self, fold, to_build):
         if to_build:
